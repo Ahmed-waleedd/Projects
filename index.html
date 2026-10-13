@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material Expansion Analysis</title>
+    <!-- Chart.js for interactive plotting -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        .chart-container {
+            position: relative;
+            margin: 40px auto;
+            height: 500px;
+            width: 100%;
+        }
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .table-card {
+            background: #fff;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .table-card h3 {
+            margin-top: 0;
+            color: #0366d6;
+            border-bottom: 2px solid #e1e4e8;
+            padding-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f1f3f5;
+            font-weight: 600;
+        }
+        tr:nth-child(even) td {
+            background-color: #f8f9fa;
+        }
+        .instruction {
+            background-color: #e8f4fd;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Material Expansion Data & Interactive Analysis</h1>
+    
+    <div class="container">
+        <div class="instruction">
+            <strong>Interactive Graph:</strong> Hover over any point along the dotted trendlines to read the continuous calculated coordinates instantly. The solid markers show your original measured experimental points.
+        </div>
+        <div class="chart-container">
+            <canvas id="expansionChart"></canvas>
+        </div>
+    </div>
+
+    <h2>Source Data Tables</h2>
+    <div class="tables-grid">
+        <!-- PE -->
+        <div class="table-card">
+            <h3>Material 1: PE</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Temperature (°C)</th>
+                        <th>&Delta;L PE (mm)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>27.0</td><td>0.00</td></tr>
+                    <tr><td>35.7</td><td>1.31</td></tr>
+                    <tr><td>40.5</td><td>2.11</td></tr>
+                    <tr><td>45.5</td><td>2.98</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Steel -->
+        <div class="table-card">
+            <h3>Material 2: Steel</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Temperature (°C)</th>
+                        <th>&Delta;L Steel (mm)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>27.0</td><td>0.00</td></tr>
+                    <tr><td>35.8</td><td>0.04</td></tr>
+                    <tr><td>40.6</td><td>0.08</td></tr>
+                    <tr><td>45.1</td><td>0.13</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Copper 10*1 -->
+        <div class="table-card">
+            <h3>Material 3: Copper 10&times;1</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Temperature (°C)</th>
+                        <th>&Delta;L Copper 10&times;1 (mm)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>27.0</td><td>0.00</td></tr>
+                    <tr><td>35.7</td><td>0.14</td></tr>
+                    <tr><td>40.6</td><td>0.22</td></tr>
+                    <tr><td>45.2</td><td>0.31</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Copper 18*1 -->
+        <div class="table-card">
+            <h3>Material 4: Copper 18&times;1</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Temperature (°C)</th>
+                        <th>&Delta;L Copper 18&times;1 (mm)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>27.0</td><td>0.00</td></tr>
+                    <tr><td>35.9</td><td>0.12</td></tr>
+                    <tr><td>41.0</td><td>0.22</td></tr>
+                    <tr><td>44.9</td><td>0.29</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Raw Data Points
+        const dataPE = [{x: 27.0, y: 0.00}, {x: 35.7, y: 1.31}, {x: 40.5, y: 2.11}, {x: 45.5, y: 2.98}];
+        const dataSteel = [{x: 27.0, y: 0.00}, {x: 35.8, y: 0.04}, {x: 40.6, y: 0.08}, {x: 45.1, y: 0.13}];
+        const dataCop10 = [{x: 27.0, y: 0.00}, {x: 35.7, y: 0.14}, {x: 40.6, y: 0.22}, {x: 45.2, y: 0.31}];
+        const dataCop18 = [{x: 27.0, y: 0.00}, {x: 35.9, y: 0.12}, {x: 41.0, y: 0.22}, {x: 44.9, y: 0.29}];
+
+        // Generate Linear Trendline Points (27 to 46 degrees)
+        function generateTrendline(m, b) {
+            let points = [];
+            for (let x = 27; x <= 46; x += 0.5) {
+                points.push({x: x, y: parseFloat((m * x + b).toFixed(4))});
+            }
+            return points;
+        }
+
+        // Equations from linear regression (y = mx + b)
+        const trendPE = generateTrendline(0.1614, -4.3941);
+        const trendSteel = generateTrendline(0.0071, -0.2037);
+        const trendCop10 = generateTrendline(0.0169, -0.4608);
+        const trendCop18 = generateTrendline(0.0161, -0.4431);
+
+        const ctx = document.getElementById('expansionChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    // PE
+                    { label: 'PE Data Points', data: dataPE, backgroundColor: '#1f77b4', pointRadius: 6, z: 10 },
+                    { label: 'PE Trendline', data: trendPE, type: 'line', borderColor: '#1f77b4', borderDash: [4, 4], fill: false, pointRadius: 0, showLine: true },
+                    
+                    // Steel
+                    { label: 'Steel Data Points', data: dataSteel, backgroundColor: '#ff7f0e', pointRadius: 6, z: 10 },
+                    { label: 'Steel Trendline', data: trendSteel, type: 'line', borderColor: '#ff7f0e', borderDash: [4, 4], fill: false, pointRadius: 0, showLine: true },
+                    
+                    // Copper 10x1
+                    { label: 'Copper 10×1 Points', data: dataCop10, backgroundColor: '#2ca02c', pointRadius: 6, z: 10 },
+                    { label: 'Copper 10×1 Trendline', data: trendCop10, type: 'line', borderColor: '#2ca02c', borderDash: [4, 4], fill: false, pointRadius: 0, showLine: true },
+                    
+                    // Copper 18x1
+                    { label: 'Copper 18×1 Points', data: dataCop18, backgroundColor: '#d62728', pointRadius: 6, z: 10 },
+                    { label: 'Copper 18×1 Trendline', data: trendCop18, type: 'line', borderColor: '#d62728', borderDash: [4, 4], fill: false, pointRadius: 0, showLine: true }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Material Length Change (ΔL) vs. Temperature',
+                        font: { size: 16, weight: 'bold' }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': (' + context.parsed.x + '°C, ' + context.parsed.y + ' mm)';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: { display: true, text: 'Temperature (°C)', font: { weight: 'bold' } },
+                        min: 25,
+                        max: 48,
+                        ticks: { stepSize: 2 }
+                    },
+                    y: {
+                        title: { display: true, text: 'Change in Length (ΔL mm)', font: { weight: 'bold' } },
+                        min: -0.1,
+                        max: 3.2
+                    }
+                }
+            }
+        }
+        );
+    </script>
+</body>
+</html>
